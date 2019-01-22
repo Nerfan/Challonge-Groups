@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 """
-Given a challonge tournament ID, pulls down the list of participants and seeds
-according to a saved elo list.
+Given a challonge tournament ID and a number of groups,
+splits the current list of participants into groups.
 
-Participants who do not have any elo records will be seeded at the bottom.
+By default, splits the "reseeded" list into the standard output.
+TODO change this to allow automatic reupload
 """
 
 import challonge
@@ -39,20 +40,18 @@ USAGE = "Usage: python3 group.py <tournament id> <number of groups>"
 
 
 def group(tourney_id, num_groups):
-    print("Fetching tournament information...")
     tournament = challonge.tournaments.show(tourney_id)
     participants = challonge.participants.index(tournament["id"])
     participants = sorted(participants, key=lambda x: x["seed"])
     total = len(participants)
-    pergroup = ((total - 1)//num_groups) + 1
     currgroup = 1
     i = 0
     seed = 1
     for j in participants:
         participant = participants[i]
-        print(participant["name"] + " is seeded " + str(seed))
-        challonge.participants.update(tourney_id, participant["id"],
-                name=participant["name"], seed=seed)
+        print(participant["name"])
+        #challonge.participants.update(tourney_id, participant["id"],
+        #        name=participant["name"], seed=seed)
         i = (i + num_groups)
         if i >= total:
             i = currgroup
